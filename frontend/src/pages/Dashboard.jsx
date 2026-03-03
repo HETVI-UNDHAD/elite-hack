@@ -1,0 +1,220 @@
+import { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { registrationService } from '../services/registrationService';
+import { teamService } from '../services/teamService';
+import { Link, useSearchParams } from 'react-router-dom';
+
+const Dashboard = () => {
+  const { user } = useAuth();
+  const [registrations, setRegistrations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [inviteMessage, setInviteMessage] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [joinRequests, setJoinRequests] = useState([]);
+
+  useEffect(() => {
+    loadRegistrations();
+    checkPendingInvite();
+    loadJoinRequests();
+  }, []);
+
+  const checkPendingInvite = async () => {
+    const inviteToken = searchParams.get('invite');
+    if (inviteToken) {
+      try {
+        const data = await teamService.acceptInvitation(inviteToken);
+        setInviteMessage(`✅ Successfully joined team "${data.team.name}" for event "${data.event.name}"!`);
+        // Remove invite param from URL
+        searchParams.delete('invite');
+        setSearchParams(searchParams);
+        // Reload registrations to show new team
+        setTimeout(() => loadRegistrations(), 1000);
+      } catch (error) {
+        setInviteMessage(`❌ ${error.response?.data?.error || 'Failed to accept invitation'}`);
+      }
+    }
+  };
+
+  const loadRegistrations = async () => {
+    try {
+      const data = await registrationService.getMyRegistrations();
+      setRegistrations(data);
+    } catch (error) {
+      console.error('Failed to load registrations:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadJoinRequests = async () => {
+    try {
+      const data = await registrationService.getMyRegistrations();
+      const allRequests = [];
+      
+      for (const reg of data) {
+        const userId = user?.id || user?.userId;
+        if (reg.teams && reg.teams.leader_id === userId) {
+          const requests = await teamService.getTeamJoinRequests(reg.team_id);
+          allRequests.push(...requests.map(r => ({ ...r, eventName: reg.events.name, teamName: reg.teams.name })));
+        }
+      }
+      
+      setJoinRequests(allRequests);
+    } catch (error) {
+      console.error('Failed to load join requests:', error);
+    }
+  };
+
+  const handleJoinRequest = async (requestId, action) => {
+    try {
+      await teamService.handleJoinRequest(requestId, action);
+      setInviteMessage(action === 'approve' ? '✅ Invitation sent to user!' : '❌ Request rejected');
+      loadJoinRequests();
+    } catch (error) {
+      setInviteMessage('❌ Failed to handle request');
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'approved': return 'bg-green-100 text-green-800';
+      case 'rejected': return 'bg-red-100 text-red-800';
+      default: return 'bg-yellow-100 text-yellow-800';
+    }
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">Welcome, {user?.name}!</h1>
+
+      {inviteMessage && (
+        <div className={`mb-6 p-4 rounded-lg border-2 ${
+          inviteMessage.includes('✅') 
+            ? 'bg-green-50 border-green-300 text-green-800' 
+            : 'bg-red-50 border-red-300 text-red-800'
+        }`}>
+          <p className="font-semibold text-lg">{inviteMessage}</p>
+        </div>
+      )}
+
+      {joinRequests.length > 0 && (
+        <div className="card mb-6 bg-yellow-50 border-2 border-yellow-300">
+          <h2 className="text-xl font-bold mb-4 text-yellow-800">📨 Join Requests ({joinRequests.length})</h2>
+          <div className="space-y-3">
+            {joinRequests.map((req) => (
+              <div key={req.id} className="bg-white p-4 rounded-lg border border-yellow-200">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="font-semibold text-lg">{req.users.name}</p>
+                    <p className="text-sm text-gray-600">{req.users.email}</p>
+                    <p className="text-sm text-blue-600 mt-1">Team: {req.teamName} | Event: {req.eventName}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleJoinRequest(req.id, 'approve')}
+                      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                    >
+                      ✓ Approve & Send Invite
+                    </button>
+                    <button
+                      onClick={() => handleJoinRequest(req.id, 'reject')}
+                      className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                    >
+                      ✗ Reject
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="grid md:grid-cols-3 gap-6 mb-8">
+        <div className="card bg-gradient-to-r from-primary-500 to-blue-500 text-white">
+          <h3 className="text-lg font-semibold mb-2">Total Registrations</h3>
+          <p className="text-4xl font-bold">{registrations.length}</p>
+        </div>
+        <div className="card bg-gradient-to-r from-green-500 to-teal-500 text-white">
+          <h3 className="text-lg font-semibold mb-2">Approved</h3>
+          <p className="text-4xl font-bold">
+            {registrations.filter(r => r.status === 'approved').length}
+          </p>
+        </div>
+        <div className="card bg-gradient-to-r from-yellow-500 to-orange-500 text-white">
+          <h3 className="text-lg font-semibold mb-2">Pending</h3>
+          <p className="text-4xl font-bold">
+            {registrations.filter(r => r.status === 'pending').length}
+          </p>
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold">My Registrations</h2>
+          <Link to="/events" className="btn-primary">Browse Events</Link>
+        </div>
+
+        {loading ? (
+          <p>Loading...</p>
+        ) : registrations.length === 0 ? (
+          <p className="text-gray-600">No registrations yet. Start by browsing events!</p>
+        ) : (
+          <div className="space-y-4">
+            {registrations.map((reg) => (
+              <div key={reg.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <h3 className="text-xl font-semibold">{reg.events.name}</h3>
+                    <p className="text-gray-600 mt-1">{reg.events.description}</p>
+                    <div className="mt-2 text-sm text-gray-600">
+                      <p>Date: {new Date(reg.events.date).toLocaleDateString()}</p>
+                      {reg.events.location && <p>Location: {reg.events.location}</p>}
+                      {reg.teams && (
+                        <div className="mt-2 p-2 bg-blue-50 rounded border border-blue-200">
+                          <p className="font-semibold text-blue-800">Team: {reg.teams.name}</p>
+                          <p className="text-blue-700">Invite Code: <span className="font-mono font-bold">{reg.teams.invite_code}</span></p>
+                          {reg.teams.members && reg.teams.members.length > 0 && (
+                            <div className="mt-2">
+                              <p className="font-semibold text-blue-800 mb-1">Team Members:</p>
+                              <div className="space-y-1">
+                                {reg.teams.members.map((member, idx) => (
+                                  <div key={idx} className="text-sm text-blue-700 bg-blue-100 px-2 py-1 rounded">
+                                    {member.name} ({member.email})
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(reg.teams.invite_code);
+                              alert('Invite code copied!');
+                            }}
+                            className="mt-1 text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+                          >
+                            📋 Copy Code
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-right ml-4">
+                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(reg.status)}`}>
+                      {reg.status.toUpperCase()}
+                    </span>
+                    {reg.attended && (
+                      <p className="text-green-600 text-sm mt-2">✓ Attended</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
