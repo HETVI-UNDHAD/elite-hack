@@ -13,6 +13,7 @@ import CreateEvent from './pages/CreateEvent';
 import EditEvent from './pages/EditEvent';
 import ManageEvent from './pages/ManageEvent';
 import AcceptInvite from './pages/AcceptInvite';
+import AddEventDetails from './pages/AddEventDetails';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
             <Route path="/admin/create-event" element={<ProtectedRoute adminOnly><CreateEvent /></ProtectedRoute>} />
             <Route path="/admin/edit-event/:id" element={<ProtectedRoute adminOnly><EditEvent /></ProtectedRoute>} />
             <Route path="/admin/event/:id" element={<ProtectedRoute adminOnly><ManageEvent /></ProtectedRoute>} />
+            <Route path="/admin/event/:id/add-details" element={<ProtectedRoute adminOnly><AddEventDetails /></ProtectedRoute>} />
           </Routes>
         </div>
       </Router>

@@ -50,6 +50,42 @@ exports.inviteTeamMember = async (req, res) => {
     }
 
     const event = await Event.findById(team.event_id);
+    
+    // Check if user with this email is already registered for this event
+    const { data: existingUser } = await require('../config/supabase')
+      .from('users')
+      .select('id')
+      .eq('email', email)
+      .single();
+    
+    if (existingUser) {
+      const existingReg = await Registration.findByUserAndEvent(existingUser.id, team.event_id);
+      if (existingReg) {
+        const existingTeam = await Team.findById(existingReg.team_id);
+        return res.status(400).json({ 
+          error: `This user is already registered in team "${existingTeam.name}" for this event` 
+        });
+      }
+    }
+    
+    // Check if there's already a pending invitation for this email in this event
+    const { data: existingInvites } = await require('../config/supabase')
+      .from('team_invitations')
+      .select(`
+        *,
+        teams!inner(event_id, name)
+      `)
+      .eq('email', email)
+      .eq('teams.event_id', team.event_id)
+      .eq('status', 'pending');
+    
+    if (existingInvites && existingInvites.length > 0) {
+      const otherTeam = existingInvites[0].teams;
+      return res.status(400).json({ 
+        error: `This user already has a pending invitation from team "${otherTeam.name}" for this event` 
+      });
+    }
+    
     const totalCommitted = await Team.getTotalCommittedCount(team_id);
     
     if (totalCommitted >= event.max_team_size) {

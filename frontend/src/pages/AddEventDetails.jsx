@@ -1,33 +1,26 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { eventService } from '../services/eventService';
 
-const CreateEvent = () => {
+const AddEventDetails = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
+  const [event, setEvent] = useState(null);
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    date: '',
-    location: '',
-    registration_deadline: '',
-    min_team_size: 1,
-    max_team_size: 1
-  });
   const [numRounds, setNumRounds] = useState('');
   const [rounds, setRounds] = useState([]);
   const [error, setError] = useState('');
-  const [createdEventId, setCreatedEventId] = useState(null);
 
-  const handleEventSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
+  useEffect(() => {
+    loadEvent();
+  }, [id]);
+
+  const loadEvent = async () => {
     try {
-      const response = await eventService.createEvent(formData);
-      setCreatedEventId(response.event.id);
-      setStep(2);
+      const data = await eventService.getEventById(id);
+      setEvent(data);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to create event');
+      setError('Failed to load event');
     }
   };
 
@@ -43,7 +36,7 @@ const CreateEvent = () => {
         location: ''
       }));
       setRounds(initialRounds);
-      setStep(3);
+      setStep(2);
     }
   };
 
@@ -57,7 +50,7 @@ const CreateEvent = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/events/${createdEventId}/rounds`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/events/${id}/rounds`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,18 +61,15 @@ const CreateEvent = () => {
       if (!response.ok) throw new Error('Failed to add rounds');
       navigate('/admin');
     } catch (err) {
-      setError('Failed to add rounds: ' + err.message);
+      setError('Failed to add phases: ' + err.message);
     }
   };
 
-  const skipRounds = () => {
-    navigate('/admin');
-  };
+  if (!event) return <div className="container mx-auto px-4 py-8">Loading...</div>;
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="card max-w-4xl mx-auto">
-        {/* Progress Indicator */}
         <div className="flex items-center justify-center mb-8">
           <div className="flex items-center">
             <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
@@ -91,24 +81,15 @@ const CreateEvent = () => {
             <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
               step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'
             }`}>2</div>
-            <div className={`w-20 h-1 ${
-              step >= 3 ? 'bg-blue-600' : 'bg-gray-300'
-            }`}></div>
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
-              step >= 3 ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'
-            }`}>3</div>
           </div>
         </div>
 
         <h1 className="text-3xl font-bold mb-2 text-center">
-          {step === 1 && 'Create New Event'}
-          {step === 2 && 'Add Event Stages'}
-          {step === 3 && 'Stage Details'}
+          {step === 1 && 'Add Event Phases'}
+          {step === 2 && 'Phase Details'}
         </h1>
         <p className="text-gray-600 text-center mb-6">
-          {step === 1 && 'Step 1: Basic event information'}
-          {step === 2 && 'Step 2: How many stages/rounds?'}
-          {step === 3 && 'Step 3: Configure each stage'}
+          Event: <span className="font-semibold">{event.name}</span>
         </p>
 
         {error && (
@@ -117,101 +98,7 @@ const CreateEvent = () => {
           </div>
         )}
 
-        {/* Step 1: Event Details */}
         {step === 1 && (
-          <form onSubmit={handleEventSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">Event Name</label>
-            <input
-              type="text"
-              className="input-field"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Description</label>
-            <textarea
-              className="input-field"
-              rows="4"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            />
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Event Date</label>
-              <input
-                type="datetime-local"
-                className="input-field"
-                value={formData.date}
-                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Registration Deadline</label>
-              <input
-                type="datetime-local"
-                className="input-field"
-                value={formData.registration_deadline}
-                onChange={(e) => setFormData({ ...formData, registration_deadline: e.target.value })}
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Location</label>
-            <input
-              type="text"
-              className="input-field"
-              value={formData.location}
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-            />
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Min Team Size</label>
-              <input
-                type="number"
-                min="1"
-                className="input-field"
-                value={formData.min_team_size}
-                onChange={(e) => setFormData({ ...formData, min_team_size: parseInt(e.target.value) })}
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Max Team Size</label>
-              <input
-                type="number"
-                min="1"
-                className="input-field"
-                value={formData.max_team_size}
-                onChange={(e) => setFormData({ ...formData, max_team_size: parseInt(e.target.value) })}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="flex gap-4">
-            <button type="submit" className="btn-primary flex-1">Next: Add Stages →</button>
-            <button type="button" onClick={() => navigate('/admin')} className="btn-secondary flex-1">
-              Cancel
-            </button>
-          </div>
-        </form>
-        )}
-
-        {/* Step 2: Number of Rounds */}
-        {step === 2 && (
           <form onSubmit={handleNumRoundsSubmit} className="space-y-6">
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-xl p-8 shadow-lg">
               <div className="text-center mb-6">
@@ -249,15 +136,14 @@ const CreateEvent = () => {
             </div>
             <div className="flex gap-4">
               <button type="submit" className="btn-primary flex-1 text-lg py-3">Next: Configure Phases →</button>
-              <button type="button" onClick={skipRounds} className="btn-secondary flex-1 text-lg py-3">
-                Skip & Finish
+              <button type="button" onClick={() => navigate('/admin')} className="btn-secondary flex-1 text-lg py-3">
+                Cancel
               </button>
             </div>
           </form>
         )}
 
-        {/* Step 3: Round Details */}
-        {step === 3 && (
+        {step === 2 && (
           <form onSubmit={handleRoundsSubmit} className="space-y-6">
             <div className="bg-gradient-to-r from-indigo-50 to-blue-50 border-2 border-indigo-200 rounded-lg p-4 mb-4">
               <p className="text-center text-indigo-900 font-semibold">
@@ -342,12 +228,12 @@ const CreateEvent = () => {
               ))}
             </div>
             <div className="flex gap-4 pt-4 border-t-2 border-gray-200">
-              <button type="submit" className="btn-primary flex-1 text-lg py-3 shadow-lg">✓ Create Event with {rounds.length} Phase{rounds.length > 1 ? 's' : ''}</button>
-              <button type="button" onClick={() => setStep(2)} className="btn-secondary py-3">
+              <button type="submit" className="btn-primary flex-1 text-lg py-3 shadow-lg">✓ Add {rounds.length} Phase{rounds.length > 1 ? 's' : ''} to Event</button>
+              <button type="button" onClick={() => setStep(1)} className="btn-secondary py-3">
                 ← Back
               </button>
-              <button type="button" onClick={skipRounds} className="btn-secondary py-3">
-                Skip Phases
+              <button type="button" onClick={() => navigate('/admin')} className="btn-secondary py-3">
+                Cancel
               </button>
             </div>
           </form>
@@ -357,4 +243,4 @@ const CreateEvent = () => {
   );
 };
 
-export default CreateEvent;
+export default AddEventDetails;

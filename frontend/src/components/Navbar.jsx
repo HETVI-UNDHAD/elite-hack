@@ -19,10 +19,12 @@ const Navbar = () => {
           <div className="flex items-center gap-6">
             {user ? (
               <>
-                <Link to="/dashboard" className="hover:text-primary-200">Dashboard</Link>
-                <Link to="/events" className="hover:text-primary-200">Events</Link>
+                {user.role !== 'admin' && (
+                  <Link to="/dashboard" className="hover:text-primary-200 font-semibold">My Registrations</Link>
+                )}
+                <Link to="/events" className="hover:text-primary-200 font-semibold">Browse Events</Link>
                 {user.role === 'admin' && (
-                  <Link to="/admin" className="hover:text-primary-200">Admin</Link>
+                  <Link to="/admin" className="hover:text-primary-200 font-semibold">Manage Events</Link>
                 )}
                 <div className="flex items-center gap-4">
                   <span className="text-sm">{user.name}</span>

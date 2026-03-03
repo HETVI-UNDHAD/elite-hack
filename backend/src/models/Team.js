@@ -50,7 +50,10 @@ class Team {
       .eq('team_id', teamId);
 
     if (error) throw error;
-    return data;
+    return data.map(reg => ({
+      ...reg.users,
+      user_id: reg.users.id
+    }));
   }
 
   static async getMemberCount(teamId) {

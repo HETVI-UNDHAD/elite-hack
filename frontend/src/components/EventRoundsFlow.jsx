@@ -36,70 +36,85 @@ const EventRoundsFlow = ({ rounds, eventDate }) => {
     return now < start;
   };
 
+  const getDuration = (round) => {
+    if (!round.end_date) return null;
+    const start = new Date(round.start_date);
+    const end = new Date(round.end_date);
+    const diffMs = end - start;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    
+    if (diffDays > 0) {
+      return `${diffDays} day${diffDays > 1 ? 's' : ''} ${diffHours > 0 ? `${diffHours}h` : ''}`;
+    }
+    return `${diffHours} hour${diffHours > 1 ? 's' : ''}`;
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-      <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-        <span>📅</span> Event Timeline
-      </h2>
+    <div className="bg-white rounded-lg shadow-md p-4 border border-indigo-200">
+      <div className="mb-4">
+        <h2 className="text-xl font-bold flex items-center gap-2">
+          <span className="text-2xl">🎯</span>
+          <span className="bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">
+            Event Phases
+          </span>
+        </h2>
+      </div>
       
       <div className="relative">
-        {/* Timeline line */}
-        <div className="absolute left-8 top-0 bottom-0 w-1 bg-gray-200"></div>
+        <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-indigo-300 to-blue-300"></div>
         
-        <div className="space-y-6">
+        <div className="space-y-4">
           {rounds.map((round, index) => {
             const active = isRoundActive(round);
             const completed = isRoundCompleted(round);
-            const upcoming = isRoundUpcoming(round);
+            const duration = getDuration(round);
             
             return (
-              <div key={round.id} className="relative flex items-start gap-4">
-                {/* Timeline dot */}
-                <div className={`relative z-10 flex-shrink-0 w-16 h-16 rounded-full flex items-center justify-center font-bold text-lg border-4 ${
+              <div key={round.id} className="relative flex items-start gap-3">
+                <div className={`relative z-10 flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm border-2 shadow-sm ${
                   completed ? 'bg-green-500 border-green-600 text-white' :
-                  active ? 'bg-blue-500 border-blue-600 text-white animate-pulse' :
-                  'bg-gray-300 border-gray-400 text-gray-600'
+                  active ? 'bg-blue-500 border-blue-600 text-white' :
+                  'bg-gray-300 border-gray-400 text-gray-700'
                 }`}>
                   {completed ? '✓' : index + 1}
                 </div>
                 
-                {/* Round content */}
-                <div className={`flex-1 border rounded-lg p-4 ${
-                  completed ? 'bg-green-50 border-green-200' :
-                  active ? 'bg-blue-50 border-blue-300 shadow-md' :
-                  'bg-gray-50 border-gray-200'
+                <div className={`flex-1 border rounded-lg p-3 ${
+                  completed ? 'bg-green-50 border-green-300' :
+                  active ? 'bg-blue-50 border-blue-400' :
+                  'bg-gray-50 border-gray-300'
                 }`}>
                   <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h3 className="text-xl font-bold">{round.round_name}</h3>
-                      <p className="text-sm text-gray-600">Round {round.round_number}</p>
-                    </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                      completed ? 'bg-green-200 text-green-800' :
-                      active ? 'bg-blue-200 text-blue-800' :
-                      'bg-gray-200 text-gray-700'
+                    <h3 className="text-base font-bold text-gray-900">{round.round_name}</h3>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                      completed ? 'bg-green-500 text-white' :
+                      active ? 'bg-blue-500 text-white' :
+                      'bg-gray-400 text-white'
                     }`}>
-                      {completed ? '✓ Completed' : active ? '● Live Now' : '⏱ Upcoming'}
+                      {completed ? '✓' : active ? '●' : '⏱'}
                     </span>
                   </div>
                   
                   {round.description && (
-                    <p className="text-gray-700 mb-3">{round.description}</p>
+                    <p className="text-xs text-gray-600 mb-2">{round.description}</p>
                   )}
                   
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="font-semibold text-gray-600">📍 Location:</span>
-                      <p className="text-gray-800">{round.location || 'TBA'}</p>
-                    </div>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
                     <div>
                       <span className="font-semibold text-gray-600">🕐 Start:</span>
-                      <p className="text-gray-800">{formatDate(round.start_date)}</p>
+                      <p className="text-gray-900">{formatDate(round.start_date)}</p>
                     </div>
                     {round.end_date && (
+                      <div>
+                        <span className="font-semibold text-gray-600">⏰ Deadline:</span>
+                        <p className="text-gray-900">{formatDate(round.end_date)}</p>
+                      </div>
+                    )}
+                    {round.location && (
                       <div className="col-span-2">
-                        <span className="font-semibold text-gray-600">🕐 End:</span>
-                        <p className="text-gray-800">{formatDate(round.end_date)}</p>
+                        <span className="font-semibold text-gray-600">📍 Location:</span>
+                        <p className="text-gray-900">{round.location}</p>
                       </div>
                     )}
                   </div>

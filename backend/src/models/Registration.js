@@ -58,13 +58,17 @@ class Registration {
         const { data: members, error: membersError } = await supabase
           .from('registrations')
           .select(`
+            user_id,
             users (id, name, email)
           `)
           .eq('team_id', reg.teams.id)
           .eq('status', 'approved');
         
         if (!membersError && members) {
-          reg.teams.members = members.map(m => m.users);
+          reg.teams.members = members.map(m => ({
+            ...m.users,
+            user_id: m.user_id
+          }));
         }
       }
     }
