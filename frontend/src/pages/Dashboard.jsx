@@ -1,17 +1,45 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { eventService } from '../services/eventService';
-import { Link } from 'react-router-dom';
+import { teamService } from '../services/teamService';
+import { Link, useSearchParams } from 'react-router-dom';
 
 const Dashboard = () => {
   const { user } = useAuth();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [inviteMessage, setInviteMessage] = useState('');
 
   useEffect(() => {
     loadEvents();
+    checkPendingInvite();
   }, []);
+
+  const checkPendingInvite = async () => {
+    const inviteToken = searchParams.get('invite');
+    if (inviteToken) {
+      try {
+        const data = await teamService.acceptInvitation(inviteToken);
+        setInviteMessage(`✅ Successfully joined team "${data.team.name}" for event "${data.event.name}"!`);
+        searchParams.delete('invite');
+        setSearchParams(searchParams);
+        setTimeout(() => window.location.reload(), 2000);
+      } catch (error) {
+        const errorMsg = error.response?.data?.error || 'Failed to accept invitation';
+        if (errorMsg.includes('already processed')) {
+          setInviteMessage('❌ This invitation has already been used. Please check your registrations.');
+        } else if (errorMsg.includes('expired')) {
+          setInviteMessage('❌ This invitation has expired. Please request a new invitation from the team leader.');
+        } else if (errorMsg.includes('Already registered')) {
+          setInviteMessage('✅ You are already registered for this event!');
+        } else {
+          setInviteMessage(`❌ ${errorMsg}`);
+        }
+      }
+    }
+  };
 
   const loadEvents = async () => {
     try {
@@ -43,29 +71,29 @@ const Dashboard = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white">
-        <div className="container mx-auto px-4 py-12">
+      <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white py-12 px-4 shadow-lg">
+        <div className="container mx-auto">
           <div className="max-w-4xl">
             <h1 className="text-5xl font-bold mb-4">Welcome back, {user?.name}! 👋</h1>
-            <p className="text-xl text-blue-100 mb-6">Discover amazing hackathons, competitions, and events</p>
+            <p className="text-xl text-emerald-100 mb-6">Discover amazing hackathons, competitions, and events</p>
             <div className="flex gap-4">
               <div className="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-4 border border-white/30">
                 <div className="text-3xl font-bold">{events.length}</div>
-                <div className="text-sm text-blue-100">Total Events</div>
+                <div className="text-sm text-emerald-100">Total Events</div>
               </div>
               <div className="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-4 border border-white/30">
                 <div className="text-3xl font-bold">{events.filter(e => !e.fee || e.fee === 0).length}</div>
-                <div className="text-sm text-blue-100">Free Events</div>
+                <div className="text-sm text-emerald-100">Free Events</div>
               </div>
               <div className="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-4 border border-white/30">
                 <div className="text-3xl font-bold">{events.filter(e => e.fee > 0).length}</div>
-                <div className="text-sm text-blue-100">Paid Events</div>
+                <div className="text-sm text-emerald-100">Paid Events</div>
               </div>
               <div className="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-4 border border-white/30">
                 <div className="text-3xl font-bold">{events.filter(e => getDaysLeft(e.registration_deadline) > 0 && getDaysLeft(e.registration_deadline) <= 7).length}</div>
-                <div className="text-sm text-blue-100">Closing Soon</div>
+                <div className="text-sm text-emerald-100">Closing Soon</div>
               </div>
             </div>
           </div>
@@ -73,14 +101,24 @@ const Dashboard = () => {
       </div>
 
       <div className="container mx-auto px-4 py-8">
+        {inviteMessage && (
+          <div className={`mb-6 p-4 rounded-lg border-2 ${
+            inviteMessage.includes('✅') 
+              ? 'bg-green-50 border-green-300 text-green-800' 
+              : 'bg-red-50 border-red-300 text-red-800'
+          }`}>
+            <p className="font-semibold text-lg">{inviteMessage}</p>
+          </div>
+        )}
+
         {/* Filter Tabs */}
         <div className="flex gap-3 mb-8 overflow-x-auto pb-2">
           <button
             onClick={() => setFilter('all')}
             className={`px-6 py-3 rounded-full font-semibold transition-all whitespace-nowrap ${
               filter === 'all'
-                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-105'
-                : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg scale-105'
+                : 'bg-white text-gray-700 hover:bg-emerald-50 border border-gray-200'
             }`}
           >
             🎯 All Events ({events.length})
@@ -138,12 +176,34 @@ const Dashboard = () => {
               return (
                 <div
                   key={event.id}
-                  className="bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 border border-gray-100 overflow-hidden group hover:scale-[1.01]"
+                  className="bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 border-2 border-emerald-100 overflow-hidden group hover:scale-[1.01]"
                 >
+                  {/* Event Image */}
+                  <div className="h-48 overflow-hidden bg-gradient-to-br from-emerald-500 to-teal-600">
+                    {event.image_url ? (
+                      <img 
+                        src={event.image_url} 
+                        alt={event.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.parentElement.innerHTML = `<div class="w-full h-full flex items-center justify-center text-white"><div class="text-center"><div class="text-6xl mb-2">🎯</div><p class="text-xl font-bold">${event.name}</p></div></div>`;
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-white">
+                        <div className="text-center">
+                          <div className="text-6xl mb-2">🎯</div>
+                          <p className="text-xl font-bold">{event.name}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
                   <div className="p-6">
                     <div className="flex gap-6">
                       {/* Left Section - Fee & Members */}
-                      <div className="flex flex-col items-center justify-start min-w-[120px] bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-4 border-2 border-blue-100">
+                      <div className="flex flex-col items-center justify-start min-w-[120px] bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-4 border-2 border-emerald-100">
                         <div className="text-center mb-4">
                           {isFree ? (
                             <div className="text-3xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">FREE</div>
@@ -243,7 +303,7 @@ const Dashboard = () => {
 
                         <Link
                           to={`/events/${event.id}`}
-                          className="mt-4 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
+                          className="mt-4 px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
                         >
                           View Details →
                         </Link>

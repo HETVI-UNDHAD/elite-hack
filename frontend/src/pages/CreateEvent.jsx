@@ -17,7 +17,8 @@ const CreateEvent = () => {
     organizer: '',
     category: '',
     subcategory: '',
-    eligibility: ''
+    eligibility: '',
+    image_url: ''
   });
   const [numRounds, setNumRounds] = useState('');
   const [rounds, setRounds] = useState([]);
@@ -174,6 +175,18 @@ const CreateEvent = () => {
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Event Image URL</label>
+            <input
+              type="url"
+              className="input-field"
+              placeholder="https://example.com/image.jpg"
+              value={formData.image_url}
+              onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+            />
+            <p className="text-xs text-gray-500 mt-1">Enter image URL or leave blank for default</p>
           </div>
 
           <div>

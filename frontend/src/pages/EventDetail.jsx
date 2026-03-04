@@ -386,35 +386,37 @@ const EventDetail = () => {
         )}
 
         {showRequestModal && (
-          <div className="mt-4 p-6 border-2 border-blue-300 rounded-xl bg-gradient-to-br from-blue-50 to-white shadow-lg">
-            <h3 className="font-bold text-xl mb-4 text-blue-900">📢 Post Team Member Request</h3>
-            <div className="mb-3">
-              <label className="block text-sm font-semibold mb-1">Members Needed</label>
-              <input
-                type="number"
-                min="1"
-                className="input-field"
-                value={membersNeeded}
-                onChange={(e) => setMembersNeeded(parseInt(e.target.value))}
-              />
-            </div>
-            <div className="mb-3">
-              <label className="block text-sm font-semibold mb-1">Message (Optional)</label>
-              <textarea
-                className="input-field"
-                rows="3"
-                placeholder="e.g., Looking for developers with React experience..."
-                value={requestMessage}
-                onChange={(e) => setRequestMessage(e.target.value)}
-              />
-            </div>
-            <div className="flex gap-2">
-              <button onClick={handlePostRequest} className="btn-primary flex-1">
-                Post Request
-              </button>
-              <button onClick={() => setShowRequestModal(false)} className="btn-secondary flex-1">
-                Cancel
-              </button>
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+              <h3 className="font-bold text-xl mb-4 text-blue-900">📢 Post Team Member Request</h3>
+              <div className="mb-3">
+                <label className="block text-sm font-semibold mb-1">Members Needed</label>
+                <input
+                  type="number"
+                  min="1"
+                  className="input-field"
+                  value={membersNeeded}
+                  onChange={(e) => setMembersNeeded(parseInt(e.target.value))}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="block text-sm font-semibold mb-1">Message (Optional)</label>
+                <textarea
+                  className="input-field"
+                  rows="3"
+                  placeholder="e.g., Looking for developers with React experience..."
+                  value={requestMessage}
+                  onChange={(e) => setRequestMessage(e.target.value)}
+                />
+              </div>
+              <div className="flex gap-2">
+                <button onClick={handlePostRequest} className="btn-primary flex-1">
+                  Post Request
+                </button>
+                <button onClick={() => setShowRequestModal(false)} className="btn-secondary flex-1">
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         )}

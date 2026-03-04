@@ -52,15 +52,53 @@ const AdminDashboard = () => {
       });
       const registrations = await response.json();
       
-      // Convert to CSV
-      const headers = ['Name', 'Email', 'Team', 'Status', 'Registration Date'];
-      const rows = registrations.map(reg => [
-        reg.users.name,
-        reg.users.email,
-        reg.teams?.name || 'Individual',
-        reg.status,
-        new Date(reg.created_at).toLocaleDateString()
-      ]);
+      // Group by teams
+      const teams = {};
+      const individuals = [];
+      
+      registrations.forEach(reg => {
+        if (reg.teams) {
+          if (!teams[reg.team_id]) {
+            teams[reg.team_id] = {
+              name: reg.teams.name,
+              leader_id: reg.teams.leader_id,
+              members: []
+            };
+          }
+          teams[reg.team_id].members.push(reg);
+        } else {
+          individuals.push(reg);
+        }
+      });
+      
+      // Create CSV with teams
+      const headers = ['Team Name', 'Team Leader', 'Member 1', 'Member 2', 'Member 3', 'Member 4', 'Member 5', 'Status'];
+      const rows = [];
+      
+      // Add team rows
+      Object.values(teams).forEach(team => {
+        const leader = team.members.find(m => m.user_id === team.leader_id);
+        const otherMembers = team.members.filter(m => m.user_id !== team.leader_id);
+        
+        const row = [
+          team.name,
+          leader ? `${leader.users.name} (${leader.users.email})` : '',
+          ...otherMembers.slice(0, 5).map(m => `${m.users.name} (${m.users.email})`),
+          ...Array(5 - otherMembers.length).fill(''),
+          team.members[0].status
+        ];
+        rows.push(row);
+      });
+      
+      // Add individual rows
+      individuals.forEach(reg => {
+        rows.push([
+          'Individual',
+          `${reg.users.name} (${reg.users.email})`,
+          '', '', '', '', '',
+          reg.status
+        ]);
+      });
       
       const csv = [
         headers.join(','),

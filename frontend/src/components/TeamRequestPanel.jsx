@@ -58,7 +58,9 @@ const TeamRequestPanel = ({ eventId, userTeamId, isTeamLeader, maxTeamSize }) =>
       await teamService.handleJoinRequest(requestId, action);
       alert(action === 'approve' ? 'Invitation sent!' : 'Request rejected');
       await loadJoinRequests();
-      await loadRequests(); // Reload to update status
+      await loadRequests();
+      // Reload the page to update team members
+      window.location.reload();
     } catch (error) {
       alert(error.response?.data?.error || 'Failed to handle request');
     }
