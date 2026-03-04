@@ -334,10 +334,7 @@ const EventDetail = () => {
               {registering ? 'Registering...' : 'Register for Event'}
             </button>
           ) : (
-            <>
-              <button onClick={() => setShowTeamModal('create')} className="btn-primary w-full py-4 text-lg shadow-lg">Create Team</button>
-              <button onClick={() => setShowTeamModal('join')} className="btn-secondary w-full py-4 text-lg shadow-lg">Join Existing Team</button>
-            </>
+            <button onClick={() => setShowTeamModal('create')} className="btn-primary w-full py-4 text-lg shadow-lg">Create Team</button>
           )}
         </div>
 
@@ -385,20 +382,6 @@ const EventDetail = () => {
                 </div>
               </>
             )}
-          </div>
-        )}
-
-        {showTeamModal === 'join' && (
-          <div className="mt-4 p-6 border-2 border-indigo-300 rounded-xl bg-gradient-to-br from-indigo-50 to-white shadow-lg">
-            <h3 className="font-bold text-xl mb-4 text-indigo-900">Join Team</h3>
-            <input
-              type="text"
-              placeholder="Enter Invite Code"
-              className="input-field mb-3"
-              value={inviteCode}
-              onChange={(e) => setInviteCode(e.target.value)}
-            />
-            <button onClick={handleJoinTeam} className="btn-primary w-full">Join Team</button>
           </div>
         )}
 

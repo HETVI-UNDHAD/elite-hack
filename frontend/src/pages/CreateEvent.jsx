@@ -12,7 +12,12 @@ const CreateEvent = () => {
     location: '',
     registration_deadline: '',
     min_team_size: 1,
-    max_team_size: 1
+    max_team_size: 1,
+    fee: 0,
+    organizer: '',
+    category: '',
+    subcategory: '',
+    eligibility: ''
   });
   const [numRounds, setNumRounds] = useState('');
   const [rounds, setRounds] = useState([]);
@@ -22,6 +27,25 @@ const CreateEvent = () => {
   const handleEventSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    
+    // Validate registration deadline is before event date
+    if (new Date(formData.registration_deadline) >= new Date(formData.date)) {
+      setError('Registration deadline must be before event date');
+      return;
+    }
+    
+    // Validate min team size is less than or equal to max team size
+    if (formData.min_team_size > formData.max_team_size) {
+      setError('Min team size cannot be greater than max team size');
+      return;
+    }
+    
+    // Validate fee is not negative
+    if (formData.fee < 0) {
+      setError('Fee cannot be negative');
+      return;
+    }
+    
     try {
       const response = await eventService.createEvent(formData);
       setCreatedEventId(response.event.id);
@@ -55,6 +79,27 @@ const CreateEvent = () => {
 
   const handleRoundsSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    
+    // Validate each phase's end date is after start date
+    for (let i = 0; i < rounds.length; i++) {
+      if (rounds[i].end_date && new Date(rounds[i].end_date) <= new Date(rounds[i].start_date)) {
+        setError(`Phase ${i + 1}: Submission deadline must be after start date`);
+        return;
+      }
+    }
+    
+    // Validate phase dates are in chronological order
+    for (let i = 0; i < rounds.length - 1; i++) {
+      const currentPhaseEnd = new Date(rounds[i].end_date || rounds[i].start_date);
+      const nextPhaseStart = new Date(rounds[i + 1].start_date);
+      
+      if (currentPhaseEnd >= nextPhaseStart) {
+        setError(`Phase ${i + 2} start date must be after Phase ${i + 1} end date`);
+        return;
+      }
+    }
+    
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(`${import.meta.env.VITE_API_URL}/events/${createdEventId}/rounds`, {
@@ -159,10 +204,70 @@ const CreateEvent = () => {
                 type="datetime-local"
                 className="input-field"
                 value={formData.registration_deadline}
+                max={formData.date}
                 onChange={(e) => setFormData({ ...formData, registration_deadline: e.target.value })}
                 required
               />
             </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Registration Fee (₹)</label>
+              <input
+                type="number"
+                min="0"
+                className="input-field"
+                value={formData.fee}
+                onChange={(e) => setFormData({ ...formData, fee: parseInt(e.target.value) })}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Organizer</label>
+              <input
+                type="text"
+                className="input-field"
+                placeholder="e.g., Presidency University"
+                value={formData.organizer}
+                onChange={(e) => setFormData({ ...formData, organizer: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Category</label>
+              <input
+                type="text"
+                className="input-field"
+                placeholder="e.g., Software Development"
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Sub-Category</label>
+              <input
+                type="text"
+                className="input-field"
+                placeholder="e.g., Web Development"
+                value={formData.subcategory}
+                onChange={(e) => setFormData({ ...formData, subcategory: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Eligibility</label>
+            <input
+              type="text"
+              className="input-field"
+              placeholder="e.g., Undergraduate, Everyone can apply"
+              value={formData.eligibility}
+              onChange={(e) => setFormData({ ...formData, eligibility: e.target.value })}
+            />
           </div>
 
           <div>
@@ -192,7 +297,7 @@ const CreateEvent = () => {
               <label className="block text-sm font-medium mb-2">Max Team Size</label>
               <input
                 type="number"
-                min="1"
+                min={formData.min_team_size}
                 className="input-field"
                 value={formData.max_team_size}
                 onChange={(e) => setFormData({ ...formData, max_team_size: parseInt(e.target.value) })}
@@ -297,6 +402,7 @@ const CreateEvent = () => {
                       <input
                         type="datetime-local"
                         value={round.start_date}
+                        min={index > 0 ? rounds[index - 1].end_date || rounds[index - 1].start_date : ''}
                         onChange={(e) => handleRoundChange(index, 'start_date', e.target.value)}
                         className="input-field"
                         required
@@ -309,6 +415,7 @@ const CreateEvent = () => {
                       <input
                         type="datetime-local"
                         value={round.end_date}
+                        min={round.start_date}
                         onChange={(e) => handleRoundChange(index, 'end_date', e.target.value)}
                         className="input-field"
                       />

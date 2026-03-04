@@ -12,7 +12,12 @@ const EditEvent = () => {
     location: '',
     registration_deadline: '',
     min_team_size: 1,
-    max_team_size: 1
+    max_team_size: 1,
+    fee: 0,
+    organizer: '',
+    category: '',
+    subcategory: '',
+    eligibility: ''
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -31,7 +36,12 @@ const EditEvent = () => {
         location: event.location || '',
         registration_deadline: event.registration_deadline.slice(0, 16),
         min_team_size: event.min_team_size,
-        max_team_size: event.max_team_size
+        max_team_size: event.max_team_size,
+        fee: event.fee || 0,
+        organizer: event.organizer || '',
+        category: event.category || '',
+        subcategory: event.subcategory || '',
+        eligibility: event.eligibility || ''
       });
     } catch (error) {
       setError('Failed to load event');
@@ -108,6 +118,65 @@ const EditEvent = () => {
                 required
               />
             </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Registration Fee (₹)</label>
+              <input
+                type="number"
+                min="0"
+                className="input-field"
+                value={formData.fee}
+                onChange={(e) => setFormData({ ...formData, fee: parseInt(e.target.value) })}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Organizer</label>
+              <input
+                type="text"
+                className="input-field"
+                placeholder="e.g., Presidency University"
+                value={formData.organizer}
+                onChange={(e) => setFormData({ ...formData, organizer: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Category</label>
+              <input
+                type="text"
+                className="input-field"
+                placeholder="e.g., Software Development"
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Sub-Category</label>
+              <input
+                type="text"
+                className="input-field"
+                placeholder="e.g., Web Development"
+                value={formData.subcategory}
+                onChange={(e) => setFormData({ ...formData, subcategory: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Eligibility</label>
+            <input
+              type="text"
+              className="input-field"
+              placeholder="e.g., Undergraduate, Everyone can apply"
+              value={formData.eligibility}
+              onChange={(e) => setFormData({ ...formData, eligibility: e.target.value })}
+            />
           </div>
 
           <div>

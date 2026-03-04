@@ -20,6 +20,11 @@ CREATE TABLE events (
   registration_deadline TIMESTAMP NOT NULL,
   min_team_size INTEGER DEFAULT 1,
   max_team_size INTEGER DEFAULT 1,
+  fee INTEGER DEFAULT 0,
+  organizer VARCHAR(255),
+  category VARCHAR(100),
+  subcategory VARCHAR(100),
+  eligibility VARCHAR(100),
   created_by UUID REFERENCES users(id) ON DELETE SET NULL,
   created_at TIMESTAMP DEFAULT NOW()
 );

@@ -3,7 +3,7 @@ const EventRound = require('../models/EventRound');
 
 exports.createEvent = async (req, res) => {
   try {
-    const { name, description, date, location, registration_deadline, min_team_size, max_team_size } = req.body;
+    const { name, description, date, location, registration_deadline, min_team_size, max_team_size, fee, organizer, category, subcategory, eligibility } = req.body;
 
     if (!name || !date || !registration_deadline) {
       return res.status(400).json({ error: 'Name, date, and registration deadline are required' });
@@ -17,6 +17,11 @@ exports.createEvent = async (req, res) => {
       registration_deadline,
       min_team_size: min_team_size || 1,
       max_team_size: max_team_size || 1,
+      fee: fee || 0,
+      organizer,
+      category,
+      subcategory,
+      eligibility,
       created_by: req.user.userId
     });
 
@@ -52,7 +57,7 @@ exports.getEventById = async (req, res) => {
 
 exports.updateEvent = async (req, res) => {
   try {
-    const { name, description, date, location, registration_deadline, min_team_size, max_team_size } = req.body;
+    const { name, description, date, location, registration_deadline, min_team_size, max_team_size, fee, organizer, category, subcategory, eligibility } = req.body;
     
     const event = await Event.update(req.params.id, {
       name,
@@ -61,7 +66,12 @@ exports.updateEvent = async (req, res) => {
       location,
       registration_deadline,
       min_team_size,
-      max_team_size
+      max_team_size,
+      fee,
+      organizer,
+      category,
+      subcategory,
+      eligibility
     });
 
     res.json({ message: 'Event updated successfully', event });

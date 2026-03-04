@@ -13,12 +13,17 @@ const Login = () => {
     e.preventDefault();
     setError('');
     try {
-      await login(formData);
+      const data = await login(formData);
       const redirect = searchParams.get('redirect');
       if (redirect) {
         navigate(redirect);
       } else {
-        navigate('/dashboard');
+        // Redirect based on user role
+        if (data.user.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/dashboard');
+        }
       }
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed');

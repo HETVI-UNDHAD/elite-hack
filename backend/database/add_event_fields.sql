@@ -1,0 +1,6 @@
+-- Add new fields to events table for Unstop-style display
+ALTER TABLE events ADD COLUMN IF NOT EXISTS fee INTEGER DEFAULT 0;
+ALTER TABLE events ADD COLUMN IF NOT EXISTS organizer VARCHAR(255);
+ALTER TABLE events ADD COLUMN IF NOT EXISTS category VARCHAR(100);
+ALTER TABLE events ADD COLUMN IF NOT EXISTS subcategory VARCHAR(100);
+ALTER TABLE events ADD COLUMN IF NOT EXISTS eligibility VARCHAR(100);

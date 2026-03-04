@@ -7,6 +7,9 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [expandedEvent, setExpandedEvent] = useState(null);
+  const [eventRegistrations, setEventRegistrations] = useState({});
+  const [expandedTeam, setExpandedTeam] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -20,6 +23,18 @@ const AdminDashboard = () => {
       ]);
       setStats(statsData);
       setEvents(eventsData);
+      
+      // Load registrations for all events
+      const token = localStorage.getItem('token');
+      const registrationsMap = {};
+      for (const event of eventsData) {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/registrations/event/${event.id}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        registrationsMap[event.id] = data;
+      }
+      setEventRegistrations(registrationsMap);
     } catch (error) {
       console.error('Failed to load data:', error);
     } finally {
@@ -79,12 +94,26 @@ const AdminDashboard = () => {
   if (loading) return <div className="container mx-auto px-4 py-8">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-          <p className="text-gray-600">Manage events, registrations, and users</p>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+      {/* Admin Hero Section */}
+      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white py-12 px-4 shadow-lg">
+        <div className="container mx-auto">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-5xl font-bold mb-3">🔑 Admin Dashboard</h1>
+              <p className="text-xl text-purple-100">Manage events, registrations, and analytics</p>
+            </div>
+            <Link 
+              to="/admin/create-event" 
+              className="bg-white text-purple-600 px-8 py-4 rounded-xl hover:bg-purple-50 font-bold shadow-xl transition-all transform hover:scale-105 text-lg"
+            >
+              + Create New Event
+            </Link>
+          </div>
         </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-8">
 
       <div className="grid md:grid-cols-4 gap-6 mb-8">
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
@@ -127,10 +156,7 @@ const AdminDashboard = () => {
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Events</h2>
-          <Link to="/admin/create-event" className="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 font-semibold shadow-sm transition-all">
-            + Create Event
-          </Link>
+          <h2 className="text-2xl font-bold text-gray-900">Manage Events</h2>
         </div>
 
         {events.length === 0 ? (
@@ -143,63 +169,181 @@ const AdminDashboard = () => {
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {events.map((event) => (
-              <div key={event.id} className="bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-xl hover:shadow-lg transition-all overflow-hidden">
-                <div className="p-5 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
-                  <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-1">{event.name}</h3>
-                  <div className="space-y-1 text-sm text-gray-600">
-                    <div className="flex items-center gap-2">
-                      <span>📅</span>
-                      <span>{new Date(event.date).toLocaleDateString()}</span>
-                    </div>
-                    {event.location && (
+            {events.map((event) => {
+              const registrations = eventRegistrations[event.id] || [];
+              const isExpanded = expandedEvent === event.id;
+              
+              return (
+                <div key={event.id} className="bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-xl hover:shadow-lg transition-all overflow-hidden">
+                  <div className="p-5 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
+                    <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-1">{event.name}</h3>
+                    <div className="space-y-1 text-sm text-gray-600">
                       <div className="flex items-center gap-2">
-                        <span>📍</span>
-                        <span className="line-clamp-1">{event.location}</span>
+                        <span>📅</span>
+                        <span>{new Date(event.date).toLocaleDateString()}</span>
                       </div>
-                    )}
-                  </div>
-                </div>
-                <div className="p-4">
-                  <div className="space-y-2">
-                    <Link 
-                      to={`/admin/event/${event.id}`} 
-                      className="block text-center bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 font-semibold text-sm transition-colors"
-                    >
-                      Manage Event
-                    </Link>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Link 
-                        to={`/admin/event/${event.id}/add-details`} 
-                        className="text-center bg-indigo-50 text-indigo-700 py-2 rounded-lg hover:bg-indigo-100 font-semibold text-sm transition-colors"
-                      >
-                        Add Details
-                      </Link>
-                      <Link 
-                        to={`/admin/edit-event/${event.id}`} 
-                        className="text-center bg-green-50 text-green-700 py-2 rounded-lg hover:bg-green-100 font-semibold text-sm transition-colors"
-                      >
-                        Edit
-                      </Link>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button 
-                        onClick={() => handleDownloadRegistrations(event.id, event.name)} 
-                        className="text-center bg-purple-50 text-purple-700 py-2 rounded-lg hover:bg-purple-100 font-semibold text-sm transition-colors"
-                      >
-                        📥 Download
-                      </button>
-                      <button 
-                        onClick={() => handleDeleteEvent(event.id)} 
-                        className="text-center bg-red-50 text-red-700 py-2 rounded-lg hover:bg-red-100 font-semibold text-sm transition-colors"
-                      >
-                        Delete
-                      </button>
+                      {event.location && (
+                        <div className="flex items-center gap-2">
+                          <span>📍</span>
+                          <span className="line-clamp-1">{event.location}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2 font-semibold text-blue-600">
+                        <span>👥</span>
+                        <span>{registrations.length} Registered</span>
+                      </div>
                     </div>
                   </div>
+                  
+                  {/* Registrations List */}
+                  {isExpanded && registrations.length > 0 && (
+                    <div className="p-4 bg-gray-50 border-b max-h-60 overflow-y-auto">
+                      <h4 className="font-bold text-sm text-gray-700 mb-2">📋 Registered Teams & Members:</h4>
+                      <div className="space-y-2">
+                        {/* Group by teams */}
+                        {(() => {
+                          const teams = {};
+                          const individuals = [];
+                          
+                          registrations.forEach(reg => {
+                            if (reg.teams) {
+                              if (!teams[reg.team_id]) {
+                                teams[reg.team_id] = {
+                                  name: reg.teams.name,
+                                  members: []
+                                };
+                              }
+                              teams[reg.team_id].members.push(reg);
+                            } else {
+                              individuals.push(reg);
+                            }
+                          });
+                          
+                          return (
+                            <>
+                              {/* Teams */}
+                              {Object.entries(teams).map(([teamId, team]) => {
+                                const isTeamExpanded = expandedTeam === teamId;
+                                return (
+                                  <div key={teamId} className="bg-white rounded-lg border border-blue-200">
+                                    <button
+                                      onClick={() => setExpandedTeam(isTeamExpanded ? null : teamId)}
+                                      className="w-full p-3 text-left hover:bg-blue-50 transition-colors rounded-lg"
+                                    >
+                                      <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-lg">🏆</span>
+                                          <span className="font-bold text-gray-900">{team.name}</span>
+                                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-semibold">
+                                            {team.members.length} members
+                                          </span>
+                                        </div>
+                                        <span className="text-gray-400">{isTeamExpanded ? '▲' : '▼'}</span>
+                                      </div>
+                                    </button>
+                                    
+                                    {isTeamExpanded && (
+                                      <div className="px-3 pb-3 space-y-2">
+                                        {team.members.map((reg) => (
+                                          <div key={reg.id} className="bg-blue-50 rounded p-2 border border-blue-200">
+                                            <div className="flex items-start justify-between">
+                                              <div>
+                                                <p className="font-semibold text-gray-900 text-sm">{reg.users.name}</p>
+                                                <p className="text-xs text-gray-600">{reg.users.email}</p>
+                                              </div>
+                                              <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                                                reg.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                                              }`}>
+                                                {reg.status}
+                                              </span>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                              
+                              {/* Individual registrations */}
+                              {individuals.map((reg) => (
+                                <div key={reg.id} className="bg-white rounded-lg p-3 border border-gray-200 text-sm">
+                                  <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                      <p className="font-bold text-gray-900">{reg.users.name}</p>
+                                      <p className="text-xs text-gray-600">{reg.users.email}</p>
+                                      <p className="text-xs text-gray-500 mt-1">👤 Individual</p>
+                                    </div>
+                                    <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                                      reg.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                                    }`}>
+                                      {reg.status}
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </>
+                          );
+                        })()}
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="p-4">
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => setExpandedEvent(isExpanded ? null : event.id)}
+                        className="block w-full text-center bg-purple-600 text-white py-2.5 rounded-lg hover:bg-purple-700 font-semibold text-sm transition-colors"
+                      >
+                        {isExpanded ? '▲ Hide' : '▼ Show'} Registrations ({(() => {
+                          const teams = new Set();
+                          registrations.forEach(reg => {
+                            if (reg.teams) {
+                              teams.add(reg.team_id);
+                            }
+                          });
+                          return `${teams.size} ${teams.size === 1 ? 'team' : 'teams'}`;
+                        })()})
+                      </button>
+                      <Link 
+                        to={`/admin/event/${event.id}`} 
+                        className="block text-center bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 font-semibold text-sm transition-colors"
+                      >
+                        Manage Event
+                      </Link>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Link 
+                          to={`/admin/event/${event.id}/add-details`} 
+                          className="text-center bg-indigo-50 text-indigo-700 py-2 rounded-lg hover:bg-indigo-100 font-semibold text-sm transition-colors"
+                        >
+                          Add Details
+                        </Link>
+                        <Link 
+                          to={`/admin/edit-event/${event.id}`} 
+                          className="text-center bg-green-50 text-green-700 py-2 rounded-lg hover:bg-green-100 font-semibold text-sm transition-colors"
+                        >
+                          Edit
+                        </Link>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button 
+                          onClick={() => handleDownloadRegistrations(event.id, event.name)} 
+                          className="text-center bg-purple-50 text-purple-700 py-2 rounded-lg hover:bg-purple-100 font-semibold text-sm transition-colors"
+                        >
+                          📥 Download
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteEvent(event.id)} 
+                          className="text-center bg-red-50 text-red-700 py-2 rounded-lg hover:bg-red-100 font-semibold text-sm transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
