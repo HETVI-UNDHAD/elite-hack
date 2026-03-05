@@ -8,11 +8,53 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+const sendOTP = async (email, otp) => {
+  const mailOptions = {
+    from: '"EventNexus" <' + process.env.EMAIL_USER + '>',
+    to: email,
+    subject: 'EventNexus - Email Verification OTP',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #4f46e5;">Email Verification</h2>
+        <p>Your OTP for EventNexus registration is:</p>
+        <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
+          <h1 style="color: #4f46e5; font-size: 36px; margin: 0;">${otp}</h1>
+        </div>
+        <p style="color: #666;">This OTP is valid for 5 minutes.</p>
+        <p style="color: #666; font-size: 12px; margin-top: 30px;">If you didn't request this, please ignore this email.</p>
+      </div>
+    `
+  };
+
+  await transporter.sendMail(mailOptions);
+};
+
+const sendPasswordResetEmail = async (email, otp) => {
+  const mailOptions = {
+    from: '"EventNexus" <' + process.env.EMAIL_USER + '>',
+    to: email,
+    subject: 'EventNexus - Password Reset OTP',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #4f46e5;">Password Reset</h2>
+        <p>Your OTP for password reset is:</p>
+        <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
+          <h1 style="color: #4f46e5; font-size: 36px; margin: 0;">${otp}</h1>
+        </div>
+        <p style="color: #666;">This OTP is valid for 5 minutes.</p>
+        <p style="color: #666; font-size: 12px; margin-top: 30px;">If you didn't request this, please ignore this email.</p>
+      </div>
+    `
+  };
+
+  await transporter.sendMail(mailOptions);
+};
+
 const sendTeamInvitation = async (recipientEmail, teamName, inviteToken, eventName) => {
   const inviteLink = `${process.env.FRONTEND_URL}/accept-invite/${inviteToken}`;
   
   const mailOptions = {
-    from: process.env.EMAIL_USER,
+    from: '"EventNexus" <' + process.env.EMAIL_USER + '>',
     to: recipientEmail,
     subject: `Team Invitation: ${teamName} - ${eventName}`,
     html: `
@@ -49,4 +91,4 @@ const sendTeamInvitation = async (recipientEmail, teamName, inviteToken, eventNa
   }
 };
 
-module.exports = { sendTeamInvitation };
+module.exports = { sendTeamInvitation, sendOTP, sendPasswordResetEmail };

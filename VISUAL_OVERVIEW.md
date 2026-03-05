@@ -1,6 +1,6 @@
 # EventNexus - Visual Project Overview
 
-## 🏗️ System Architecture
+## 🏗️ System Architecture (UPGRADED)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -29,29 +29,40 @@
 │  ┌────────────────────────────────────────────────────────┐ │
 │  │                    API Routes                          │ │
 │  │  /api/auth  /api/events  /api/registrations           │ │
-│  │  /api/teams  /api/analytics                           │ │
+│  │  /api/teams  /api/analytics  /api/qr                  │ │
 │  └────────────────────────────────────────────────────────┘ │
 │                          │                                   │
 │  ┌────────────────────────────────────────────────────────┐ │
 │  │                   Middleware                           │ │
 │  │  JWT Authentication  │  Role Authorization            │ │
+│  │  Logging  │  Error Handling                           │ │
 │  └────────────────────────────────────────────────────────┘ │
 │                          │                                   │
 │  ┌────────────────────────────────────────────────────────┐ │
 │  │                   Controllers                          │ │
-│  │  Auth │ Event │ Registration │ Team │ Analytics       │ │
+│  │  Auth │ Event │ Registration │ Team │ QR             │ │
 │  └────────────────────────────────────────────────────────┘ │
 │                          │                                   │
 │  ┌────────────────────────────────────────────────────────┐ │
-│  │                     Models                             │ │
+│  │              Services (Business Logic) ⭐ NEW          │ │
+│  │  Auth │ Event │ Registration │ QR │ Email            │ │
+│  └────────────────────────────────────────────────────────┘ │
+│                          │                                   │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │          Repositories (Data Access) ⭐ NEW             │ │
 │  │  User │ Event │ Registration │ Team                   │ │
+│  └────────────────────────────────────────────────────────┘ │
+│                          │                                   │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │                  Utils & Config                        │ │
+│  │  Logger (Winston) │ JWT │ Email │ QR Code            │ │
 │  └────────────────────────────────────────────────────────┘ │
 │                                                              │
 │                    http://localhost:5000                     │
 └──────────────────────┬───────────────────────────────────────┘
                        │
                        │ Supabase Client
-                       │ SQL Queries
+                       │ SQL Queries + Indexes
                        │
 ┌──────────────────────▼───────────────────────────────────────┐
 │                       DATABASE                               │
@@ -59,7 +70,8 @@
 │                                                              │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
 │  │  users   │  │  events  │  │  teams   │  │registra- │   │
-│  │          │  │          │  │          │  │  tions   │   │
+│  │  + ENUM  │  │+ Indexes │  │+ Indexes │  │tions     │   │
+│  │+ Indexes │  │+ Constr. │  │          │  │+ ENUM    │   │
 │  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
 │                                                              │
 │         https://brnbwnukmnktfrgwiddc.supabase.co           │

@@ -32,11 +32,11 @@ const MyRegistrations = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <div className="bg-gradient-to-r from-green-600 via-teal-600 to-blue-600 text-white py-12 px-4 shadow-lg">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      <div className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-white py-12 px-4 shadow-lg">
         <div className="container mx-auto">
           <h1 className="text-5xl font-bold mb-3">📝 My Registrations</h1>
-          <p className="text-xl text-green-100">View all your event registrations and team details</p>
+          <p className="text-xl text-blue-100">View all your event registrations and team details</p>
         </div>
       </div>
 
@@ -65,7 +65,7 @@ const MyRegistrations = () => {
           <div className="space-y-6">
             {registrations.map((reg) => (
               <div key={reg.id} className="bg-white rounded-2xl shadow-lg border-2 border-gray-200 overflow-hidden">
-                <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-6 text-white">
+                <div className="bg-gradient-to-r from-blue-500 to-indigo-500 p-6 text-white">
                   <div className="flex justify-between items-start">
                     <div>
                       <h3 className="text-3xl font-bold mb-2">{reg.events.name}</h3>
@@ -156,6 +156,14 @@ const MyRegistrations = () => {
                     >
                       View Event Details
                     </Link>
+                    {reg.status === 'approved' && (
+                      <Link
+                        to={`/qr/${reg.events.id}`}
+                        className="flex-1 text-center bg-gradient-to-r from-green-500 to-emerald-500 text-white py-3 rounded-xl hover:from-green-600 hover:to-emerald-600 font-bold shadow-lg transition-all"
+                      >
+                        📱 Show QR Code
+                      </Link>
+                    )}
                   </div>
                 </div>
               </div>

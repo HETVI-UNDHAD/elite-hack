@@ -48,7 +48,6 @@ exports.getEventById = async (req, res) => {
       const rounds = await EventRound.findByEvent(req.params.id);
       res.json({ ...event, rounds });
     } catch (roundError) {
-      // If rounds table doesn't exist yet, return event without rounds
       res.json({ ...event, rounds: [] });
     }
   } catch (error) {

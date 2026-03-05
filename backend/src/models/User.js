@@ -45,6 +45,32 @@ class User {
   static async verifyPassword(plainPassword, hashedPassword) {
     return await bcrypt.compare(plainPassword, hashedPassword);
   }
+
+  static async updatePassword(email, newPassword) {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
+    const { data, error } = await supabase
+      .from('users')
+      .update({ password: hashedPassword })
+      .eq('email', email)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  static async updateName(userId, name) {
+    const { data, error } = await supabase
+      .from('users')
+      .update({ name })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
 }
 
 module.exports = User;

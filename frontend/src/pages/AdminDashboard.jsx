@@ -132,18 +132,18 @@ const AdminDashboard = () => {
   if (loading) return <div className="container mx-auto px-4 py-8">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Admin Hero Section */}
-      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white py-12 px-4 shadow-lg">
+      <div className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-white py-12 px-4 shadow-lg">
         <div className="container mx-auto">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-5xl font-bold mb-3">🔑 Admin Dashboard</h1>
-              <p className="text-xl text-purple-100">Manage events, registrations, and analytics</p>
+              <p className="text-xl text-blue-100">Manage events, registrations, and analytics</p>
             </div>
             <Link 
               to="/admin/create-event" 
-              className="bg-white text-purple-600 px-8 py-4 rounded-xl hover:bg-purple-50 font-bold shadow-xl transition-all transform hover:scale-105 text-lg"
+              className="bg-white text-blue-600 px-8 py-4 rounded-xl hover:bg-blue-50 font-bold shadow-xl transition-all transform hover:scale-105 text-lg"
             >
               + Create New Event
             </Link>

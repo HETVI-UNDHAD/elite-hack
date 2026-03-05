@@ -7,6 +7,7 @@ const eventRoutes = require('./src/routes/eventRoutes');
 const registrationRoutes = require('./src/routes/registrationRoutes');
 const teamRoutes = require('./src/routes/teamRoutes');
 const analyticsRoutes = require('./src/routes/analyticsRoutes');
+const qrRoutes = require('./src/routes/qrRoutes');
 const healthController = require('./src/controllers/healthController');
 
 const app = express();
@@ -25,6 +26,7 @@ app.use('/api/events', eventRoutes);
 app.use('/api/registrations', registrationRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/qr', qrRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
