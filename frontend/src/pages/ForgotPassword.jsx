@@ -47,27 +47,22 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-64 h-64 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-pulse" style={{animationDelay: '1s'}}></div>
-      </div>
-
-      <div className="relative z-10 bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full border border-blue-100">
+    <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4 bg-gradient-to-br from-purple-900 via-blue-900 to-cyan-900">
+      <div className="relative z-10 glass-card rounded-3xl shadow-2xl p-8 max-w-md w-full border border-white/20 backdrop-blur-xl bg-white/10 animate-slide-up">
         <div className="text-center mb-8">
-          <div className="inline-block p-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl mb-4 shadow-lg">
+          <div className="inline-block p-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl mb-4 shadow-lg">
             <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
             </svg>
           </div>
-          <h2 className="text-4xl font-bold text-gray-800 mb-2">
-            Reset <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Password</span>
+          <h2 className="text-4xl font-bold text-white mb-2">
+            Reset <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">Password</span>
           </h2>
-          <p className="text-gray-600">{step === 1 ? 'Enter your email to receive OTP' : 'Enter OTP and new password'}</p>
+          <p className="text-cyan-200">{step === 1 ? 'Enter your email to receive OTP' : 'Enter OTP and new password'}</p>
         </div>
 
         {error && (
-          <div className="bg-red-50 border-2 border-red-300 text-red-700 px-4 py-3 rounded-xl mb-6">
+          <div className="bg-red-500/20 border-2 border-red-500/50 text-red-200 px-4 py-3 rounded-xl mb-6 backdrop-blur-sm">
             <p className="font-semibold">{error}</p>
           </div>
         )}
@@ -75,12 +70,12 @@ const ForgotPassword = () => {
         {step === 1 ? (
           <form onSubmit={handleSendOTP} className="space-y-5">
             <div>
-              <label className="block text-sm font-semibold mb-2 text-gray-700 flex items-center gap-2">
+              <label className="block text-sm font-semibold mb-2 text-white flex items-center gap-2">
                 <span>📧</span> Email Address
               </label>
               <input
                 type="email"
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                className="w-full px-4 py-3 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/30 transition-all outline-none backdrop-blur-sm"
                 placeholder="your.email@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -91,7 +86,7 @@ const ForgotPassword = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-xl font-bold text-lg hover:from-blue-600 hover:to-indigo-700 transform hover:scale-105 transition-all shadow-lg hover:shadow-blue-500/50 disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl font-bold text-lg hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all shadow-lg hover:shadow-purple-500/50 disabled:opacity-50"
             >
               {loading ? 'Sending...' : 'Send OTP'}
             </button>
@@ -99,11 +94,11 @@ const ForgotPassword = () => {
         ) : (
           <form onSubmit={handleResetPassword} className="space-y-5">
             <div>
-              <label className="block text-sm font-semibold mb-2 text-gray-700">OTP Code</label>
+              <label className="block text-sm font-semibold mb-2 text-white">OTP Code</label>
               <input
                 type="text"
                 maxLength="6"
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none text-center text-2xl tracking-widest"
+                className="w-full px-4 py-3 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/30 transition-all outline-none text-center text-2xl tracking-widest backdrop-blur-sm"
                 placeholder="000000"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
@@ -112,12 +107,12 @@ const ForgotPassword = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-2 text-gray-700 flex items-center gap-2">
+              <label className="block text-sm font-semibold mb-2 text-white flex items-center gap-2">
                 <span>🔒</span> New Password
               </label>
               <input
                 type="password"
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                className="w-full px-4 py-3 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/30 transition-all outline-none backdrop-blur-sm"
                 placeholder="Enter new password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
@@ -128,7 +123,7 @@ const ForgotPassword = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-xl font-bold text-lg hover:from-blue-600 hover:to-indigo-700 transform hover:scale-105 transition-all shadow-lg hover:shadow-blue-500/50 disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl font-bold text-lg hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all shadow-lg hover:shadow-purple-500/50 disabled:opacity-50"
             >
               {loading ? 'Resetting...' : 'Reset Password'}
             </button>
@@ -136,7 +131,7 @@ const ForgotPassword = () => {
         )}
 
         <div className="mt-6 text-center">
-          <Link to="/login" className="font-bold text-blue-600 hover:text-indigo-600 transition-colors">
+          <Link to="/login" className="font-bold text-cyan-300 hover:text-cyan-200 transition-colors">
             ← Back to Login
           </Link>
         </div>

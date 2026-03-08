@@ -50,6 +50,40 @@ const sendPasswordResetEmail = async (email, otp) => {
   await transporter.sendMail(mailOptions);
 };
 
+const sendNewEventNotification = async (email, eventData) => {
+  const mailOptions = {
+    from: '"EventNexus" <' + process.env.EMAIL_USER + '>',
+    to: email,
+    subject: 'New Event Available!',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #4f46e5;">New Event Available!</h2>
+        <p>Hello,</p>
+        <p>A new event has been added to the portal.</p>
+        
+        <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="color: #4f46e5; margin-top: 0;">Event Name: ${eventData.name}</h3>
+          <p><strong>Date:</strong> ${eventData.date}</p>
+          <p><strong>Description:</strong> ${eventData.description || 'No description provided'}</p>
+        </div>
+        
+        <p>Register now from your dashboard.</p>
+        
+        <a href="${eventData.link}" style="display: inline-block; background: #4f46e5; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0;">
+          View Event Details
+        </a>
+        
+        <p style="color: #666; font-size: 14px; margin-top: 30px;">
+          Regards,<br>
+          Event Management Team
+        </p>
+      </div>
+    `
+  };
+
+  await transporter.sendMail(mailOptions);
+};
+
 const sendTeamInvitation = async (recipientEmail, teamName, inviteToken, eventName) => {
   const inviteLink = `${process.env.FRONTEND_URL}/accept-invite/${inviteToken}`;
   
@@ -91,4 +125,4 @@ const sendTeamInvitation = async (recipientEmail, teamName, inviteToken, eventNa
   }
 };
 
-module.exports = { sendTeamInvitation, sendOTP, sendPasswordResetEmail };
+module.exports = { sendTeamInvitation, sendOTP, sendPasswordResetEmail, sendNewEventNotification };

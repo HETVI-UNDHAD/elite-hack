@@ -29,20 +29,20 @@ const Home = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-20">
+      <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-20 animate-gradient-x">
         <div className="container mx-auto px-4 text-center">
-          <p className="text-sm font-semibold mb-4">TRUSTED BY 6,000+ PARTICIPANTS ACROSS INDIA</p>
-          <h1 className="text-5xl font-bold mb-6">Intelligent Event Management for All</h1>
-          <p className="text-xl mb-8 max-w-3xl mx-auto">
+          <p className="text-sm font-semibold mb-4 animate-fade-in">TRUSTED BY 6,000+ PARTICIPANTS ACROSS INDIA</p>
+          <h1 className="text-5xl font-bold mb-6 animate-slide-up">Intelligent Event Management for All</h1>
+          <p className="text-xl mb-8 max-w-3xl mx-auto animate-fade-in" style={{animationDelay: '0.2s'}}>
             From seamless registration systems for organizations to hassle-free event participation for attendees,
             we enable communities to thrive through accessible, future-focused event experiences
           </p>
           {!user && (
-            <div className="flex gap-4 justify-center">
-              <Link to="/register" className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 shadow-lg">
+            <div className="flex gap-4 justify-center animate-fade-in" style={{animationDelay: '0.4s'}}>
+              <Link to="/register" className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 shadow-lg transform hover:scale-105 transition-all">
                 Get Started
               </Link>
-              <Link to="/login" className="border-2 border-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-all">
+              <Link to="/login" className="border-2 border-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-all transform hover:scale-105">
                 Login to EventNexus
               </Link>
             </div>
@@ -55,8 +55,8 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-4 gap-8">
             {stats.map((stat, idx) => (
-              <div key={idx} className="text-center">
-                <h3 className="text-4xl font-bold text-blue-600 mb-2">{stat.number}</h3>
+              <div key={idx} className="text-center animate-fade-in" style={{animationDelay: `${idx * 0.1}s`}}>
+                <h3 className="text-4xl font-bold text-blue-600 mb-2 animate-count-up">{stat.number}</h3>
                 <p className="font-semibold text-gray-800 mb-2">{stat.label}</p>
                 <p className="text-sm text-gray-600">{stat.desc}</p>
               </div>
@@ -73,28 +73,12 @@ const Home = () => {
         </p>
         <div className="grid md:grid-cols-3 gap-8">
           {features.map((feature, idx) => (
-            <div key={idx} className="card text-center hover:shadow-lg transition">
-              <div className="text-5xl mb-4">{feature.icon}</div>
+            <div key={idx} className="card text-center hover:shadow-lg transition transform hover:scale-105 animate-fade-in" style={{animationDelay: `${idx * 0.1}s`}}>
+              <div className="text-5xl mb-4 animate-bounce-slow">{feature.icon}</div>
               <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
               <p className="text-gray-600">{feature.desc}</p>
             </div>
           ))}
-        </div>
-      </div>
-
-      {/* Testimonials */}
-      <div className="bg-gray-50 py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-12">Success Stories</h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, idx) => (
-              <div key={idx} className="bg-white p-6 rounded-lg shadow">
-                <p className="text-gray-600 mb-4 italic">"{testimonial.text}"</p>
-                <p className="font-semibold">{testimonial.name}</p>
-                <p className="text-sm text-gray-500">{testimonial.role}</p>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 
@@ -104,7 +88,7 @@ const Home = () => {
           <h2 className="text-3xl font-bold mb-4">Let's Build the Future of Events Together</h2>
           <p className="text-lg mb-8">Join thousands of organizers and participants transforming event management</p>
           {!user && (
-            <Link to="/register" className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 inline-block shadow-lg">
+            <Link to="/register" className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 inline-block shadow-lg transform hover:scale-105 transition-all">
               Get Started Today
             </Link>
           )}

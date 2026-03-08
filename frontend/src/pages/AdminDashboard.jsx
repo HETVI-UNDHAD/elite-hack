@@ -10,6 +10,7 @@ const AdminDashboard = () => {
   const [expandedEvent, setExpandedEvent] = useState(null);
   const [eventRegistrations, setEventRegistrations] = useState({});
   const [expandedTeam, setExpandedTeam] = useState(null);
+  const [deleteModal, setDeleteModal] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -119,13 +120,12 @@ const AdminDashboard = () => {
   };
 
   const handleDeleteEvent = async (id) => {
-    if (window.confirm('Are you sure you want to delete this event?')) {
-      try {
-        await eventService.deleteEvent(id);
-        loadData();
-      } catch (error) {
-        alert('Failed to delete event');
-      }
+    try {
+      await eventService.deleteEvent(id);
+      setDeleteModal(null);
+      loadData();
+    } catch (error) {
+      alert('Failed to delete event');
     }
   };
 
@@ -213,6 +213,20 @@ const AdminDashboard = () => {
               
               return (
                 <div key={event.id} className="bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-xl hover:shadow-lg transition-all overflow-hidden">
+                  {/* Event Image */}
+                  {event.image_url && (
+                    <div className="h-40 overflow-hidden bg-gradient-to-br from-blue-400 to-indigo-500">
+                      <img 
+                        src={event.image_url} 
+                        alt={event.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
+                  
                   <div className="p-5 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
                     <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-1">{event.name}</h3>
                     <div className="space-y-1 text-sm text-gray-600">
@@ -371,7 +385,7 @@ const AdminDashboard = () => {
                           📥 Download
                         </button>
                         <button 
-                          onClick={() => handleDeleteEvent(event.id)} 
+                          onClick={() => setDeleteModal(event.id)} 
                           className="text-center bg-red-50 text-red-700 py-2 rounded-lg hover:bg-red-100 font-semibold text-sm transition-colors"
                         >
                           Delete
@@ -386,6 +400,35 @@ const AdminDashboard = () => {
         )}
       </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-slide-up">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-4xl">⚠️</span>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Delete Event?</h3>
+              <p className="text-gray-600">Are you sure you want to delete this event? This action cannot be undone.</p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleteModal(null)}
+                className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteEvent(deleteModal)}
+                className="flex-1 bg-red-600 text-white py-3 rounded-xl font-semibold hover:bg-red-700 transition-all"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

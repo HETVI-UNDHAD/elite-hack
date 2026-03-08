@@ -310,7 +310,7 @@ const Dashboard = () => {
           </div>
 
           {/* Chat Sidebar */}
-          <div className="w-96 sticky top-20" style={{ alignSelf: 'flex-start' }}>
+          <div className="w-96 sticky top-20 self-start">
             <CommonChat />
           </div>
         </div>

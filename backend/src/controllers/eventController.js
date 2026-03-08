@@ -1,5 +1,7 @@
 const Event = require('../models/Event');
 const EventRound = require('../models/EventRound');
+const User = require('../models/User');
+const { sendNewEventNotification } = require('../utils/emailService');
 
 exports.createEvent = async (req, res) => {
   try {
@@ -24,6 +26,25 @@ exports.createEvent = async (req, res) => {
       eligibility,
       image_url,
       created_by: req.user.userId
+    });
+
+    // Send email notification to all users asynchronously (don't wait)
+    setImmediate(async () => {
+      try {
+        const users = await User.getAllParticipants();
+        const eventLink = `${process.env.FRONTEND_URL}/events/${event.id}`;
+        
+        for (const user of users) {
+          await sendNewEventNotification(user.email, {
+            name: event.name,
+            description: event.description,
+            date: new Date(event.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+            link: eventLink
+          });
+        }
+      } catch (emailError) {
+        console.error('Failed to send email notifications:', emailError);
+      }
     });
 
     res.status(201).json({ message: 'Event created successfully', event });

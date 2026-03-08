@@ -41,6 +41,11 @@ const Login = () => {
 
       {/* Login Card */}
       <div className="relative z-10 bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full border border-blue-100">
+        <div className="mb-4">
+          <Link to="/" className="inline-flex items-center gap-2 text-blue-600 hover:text-indigo-600 transition-colors font-semibold">
+            <span>←</span> Back to Home
+          </Link>
+        </div>
         <div className="text-center mb-8">
           <div className="inline-block p-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl mb-4 shadow-lg transform hover:scale-110 transition-transform">
             <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

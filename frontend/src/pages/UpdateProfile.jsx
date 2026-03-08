@@ -61,28 +61,28 @@ const UpdateProfile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8">
-      <div className="container mx-auto px-4 max-w-2xl">
-        <div className="bg-white rounded-3xl shadow-2xl p-8 border border-blue-100">
+      <div className="relative z-10 container mx-auto px-4 max-w-2xl">
+        <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
           <div className="text-center mb-8">
-            <div className="inline-block p-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl mb-4 shadow-lg">
+            <div className="inline-block p-4 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-2xl mb-4 shadow-lg">
               <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
-            <h2 className="text-4xl font-bold text-gray-800 mb-2">
+            <h2 className="text-4xl font-bold text-gray-900 mb-2">
               Update <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Profile</span>
             </h2>
             <p className="text-gray-600">Manage your account settings</p>
           </div>
 
           {error && (
-            <div className="bg-red-50 border-2 border-red-300 text-red-700 px-4 py-3 rounded-xl mb-6">
+            <div className="bg-red-50 border-2 border-red-200 text-red-800 px-4 py-3 rounded-xl mb-6">
               <p className="font-semibold">{error}</p>
             </div>
           )}
 
           {success && (
-            <div className="bg-green-50 border-2 border-green-300 text-green-700 px-4 py-3 rounded-xl mb-6">
+            <div className="bg-green-50 border-2 border-green-200 text-green-800 px-4 py-3 rounded-xl mb-6">
               <p className="font-semibold">{success}</p>
             </div>
           )}
@@ -94,7 +94,7 @@ const UpdateProfile = () => {
               </label>
               <input
                 type="text"
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                className="w-full px-4 py-3 rounded-xl bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
@@ -107,16 +107,16 @@ const UpdateProfile = () => {
               </label>
               <input
                 type="email"
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 cursor-not-allowed"
+                className="w-full px-4 py-3 rounded-xl bg-gray-100 border-2 border-gray-200 text-gray-500 cursor-not-allowed"
                 value={user?.email}
                 disabled
               />
               <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
             </div>
 
-            <hr className="my-6" />
+            <hr className="my-6 border-gray-200" />
 
-            <h3 className="text-lg font-bold text-gray-800 mb-4">Change Password (Optional)</h3>
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Change Password (Optional)</h3>
 
             <div>
               <label className="block text-sm font-semibold mb-2 text-gray-700 flex items-center gap-2">
@@ -124,7 +124,7 @@ const UpdateProfile = () => {
               </label>
               <input
                 type="password"
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                className="w-full px-4 py-3 rounded-xl bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
                 placeholder="Enter current password"
                 value={formData.currentPassword}
                 onChange={(e) => setFormData({ ...formData, currentPassword: e.target.value })}
@@ -137,7 +137,7 @@ const UpdateProfile = () => {
               </label>
               <input
                 type="password"
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                className="w-full px-4 py-3 rounded-xl bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
                 placeholder="Enter new password"
                 value={formData.newPassword}
                 onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
@@ -150,7 +150,7 @@ const UpdateProfile = () => {
               </label>
               <input
                 type="password"
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                className="w-full px-4 py-3 rounded-xl bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none"
                 placeholder="Confirm new password"
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
@@ -160,7 +160,7 @@ const UpdateProfile = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-xl font-bold text-lg hover:from-blue-600 hover:to-indigo-700 transform hover:scale-105 transition-all shadow-lg hover:shadow-blue-500/50 disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl font-bold text-lg hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all shadow-lg hover:shadow-xl disabled:opacity-50"
             >
               {loading ? 'Updating...' : 'Update Profile ✨'}
             </button>

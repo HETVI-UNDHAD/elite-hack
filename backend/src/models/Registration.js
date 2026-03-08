@@ -61,8 +61,7 @@ class Registration {
             user_id,
             users (id, name, email)
           `)
-          .eq('team_id', reg.teams.id)
-          .eq('status', 'approved');
+          .eq('team_id', reg.teams.id);
         
         if (!membersError && members) {
           reg.teams.members = members.map(m => ({
@@ -95,6 +94,17 @@ class Registration {
       .eq('id', id)
       .select()
       .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  static async updateTeamStatus(teamId, status) {
+    const { data, error } = await supabase
+      .from('registrations')
+      .update({ status })
+      .eq('team_id', teamId)
+      .select();
 
     if (error) throw error;
     return data;

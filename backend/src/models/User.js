@@ -46,6 +46,16 @@ class User {
     return await bcrypt.compare(plainPassword, hashedPassword);
   }
 
+  static async getAllParticipants() {
+    const { data, error } = await supabase
+      .from('users')
+      .select('email, name')
+      .eq('role', 'participant');
+
+    if (error) throw error;
+    return data || [];
+  }
+
   static async updatePassword(email, newPassword) {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     

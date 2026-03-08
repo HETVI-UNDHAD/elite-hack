@@ -137,12 +137,26 @@ exports.acceptInvitation = async (req, res) => {
       return res.status(400).json({ error: 'Already registered for this event' });
     }
 
+    const event = await Event.findById(invitation.teams.event_id);
+    const memberCount = await Team.getMemberCount(invitation.team_id);
+    
+    // Check if team meets minimum size requirement
+    let status = 'approved';
+    if (event.min_team_size && memberCount + 1 < event.min_team_size) {
+      status = 'pending';
+    }
+
     await Registration.create({
       user_id: req.user.userId,
       event_id: invitation.teams.event_id,
       team_id: invitation.team_id,
-      status: 'approved'
+      status
     });
+
+    // Update all team members' status if minimum is now met
+    if (event.min_team_size && memberCount + 1 >= event.min_team_size) {
+      await Registration.updateTeamStatus(invitation.team_id, 'approved');
+    }
 
     await TeamInvitation.updateStatus(invitation.id, 'accepted');
 

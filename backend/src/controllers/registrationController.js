@@ -12,6 +12,10 @@ exports.registerForEvent = async (req, res) => {
     }
 
     const event = await Event.findById(event_id);
+    if (!event) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+
     const deadline = new Date(event.registration_deadline);
     
     if (new Date() > deadline) {
@@ -25,8 +29,18 @@ exports.registerForEvent = async (req, res) => {
 
     if (team_id) {
       const memberCount = await Team.getMemberCount(team_id);
-      if (memberCount >= event.max_team_size) {
+      const maxSize = event.max_team_size || 10;
+      if (memberCount >= maxSize) {
         return res.status(400).json({ error: 'Team is full' });
+      }
+    }
+
+    // Set status as 'pending' if team doesn't meet minimum size, otherwise 'approved'
+    let status = 'approved';
+    if (team_id && event.min_team_size) {
+      const memberCount = await Team.getMemberCount(team_id);
+      if (memberCount + 1 < event.min_team_size) {
+        status = 'pending';
       }
     }
 
@@ -34,11 +48,12 @@ exports.registerForEvent = async (req, res) => {
       user_id,
       event_id,
       team_id: team_id || null,
-      status: 'approved'
+      status
     });
 
     res.status(201).json({ message: 'Registration successful', registration });
   } catch (error) {
+    console.error('Registration error:', error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -55,7 +70,19 @@ exports.getMyRegistrations = async (req, res) => {
 exports.getEventRegistrations = async (req, res) => {
   try {
     const registrations = await Registration.findByEvent(req.params.eventId);
-    res.json(registrations);
+    const event = await Event.findById(req.params.eventId);
+    
+    // Filter out incomplete teams
+    const validRegistrations = registrations.filter(reg => {
+      if (!reg.team_id) return true; // Individual registrations are always valid
+      if (!event.min_team_size) return true; // If no min size set, all teams are valid
+      
+      // Count team members
+      const teamMembers = registrations.filter(r => r.team_id === reg.team_id);
+      return teamMembers.length >= event.min_team_size;
+    });
+    
+    res.json(validRegistrations);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
